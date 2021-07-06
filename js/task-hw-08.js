@@ -23,6 +23,7 @@ function galleryItemsRender(images) {
     })
     .join(' ');
 }
+
 // функция открытия модального окна по клику на картинке
 function onClickOpenModal(event) {
   event.preventDefault();
@@ -35,8 +36,9 @@ function onClickOpenModal(event) {
   imageAtModal.src = event.target.dataset.source;
   imageAtModal.alt = event.target.alt;
   openModalRef.addEventListener('click', onClickCloseModal);
-  window.addEventListener('keydown', onKeyPressCloseModal);
+  window.addEventListener('keydown', onKeyPressEvent);
 }
+
 // функция закрытия модального окна по клику мышкой
 function onClickCloseModal(event) {
   if (
@@ -46,16 +48,69 @@ function onClickCloseModal(event) {
     closeModal();
   }
 }
+
+// функция обработки события нажатии кнопки на коавиатуре
+function onKeyPressEvent(event) {
+  const currenImagetIndex = getIndexOfCurrentImage(imageAtModal.alt);
+  //   if (event.code === 'ArrowLeft') {
+  //     renderPreviousImage(currenImagetIndex);
+  //   } else if (event.code === 'ArrowRight') {
+  //     renderNextImage(currenImagetIndex);
+  //   } else if (event.code === 'Escape') {
+  //     closeModal();
+  //   }
+
+  switch (event.code) {
+    case 'ArrowLeft':
+      renderPreviousImage(currenImagetIndex);
+      break;
+    case 'ArrowRight':
+      renderNextImage(currenImagetIndex);
+      break;
+    case 'Escape':
+      closeModal();
+      break;
+    default:
+  }
+}
+
+// функция рендеринга предыдущей картинки
+function renderPreviousImage(indexOfImage) {
+  if (indexOfImage === 0) {
+    indexOfImage = galleryItems.length;
+  }
+  const { original, description } = galleryItems.find(
+    item => galleryItems.indexOf(item) === indexOfImage - 1,
+  );
+
+  imageAtModal.src = original;
+  imageAtModal.alt = description;
+}
+
+// функция рендеринга следующей картинки
+function renderNextImage(indexOfImage) {
+  if (indexOfImage === galleryItems.length - 1) {
+    indexOfImage = -1;
+  }
+  const nextElement = galleryItems.find(
+    item => galleryItems.indexOf(item) === indexOfImage + 1,
+  );
+
+  imageAtModal.src = nextElement.original;
+  imageAtModal.alt = nextElement.description;
+}
+
 // функция закрытия модального окна
 function closeModal() {
   openModalRef.classList.remove('is-open');
-  window.removeEventListener('keydown', onKeyPressCloseModal);
+  window.removeEventListener('keydown', onKeyPressEvent);
   imageAtModal.src = '';
   imageAtModal.alt = '';
 }
-// функция закрытия модального окна по нажатии кнопки
-function onKeyPressCloseModal(event) {
-  if (event.code === 'Escape') {
-    closeModal();
-  }
+
+// функция поиска индекса текущей картинки в массиве
+function getIndexOfCurrentImage(currentImageAlt) {
+  return galleryItems.findIndex(
+    ({ description }) => description === currentImageAlt,
+  );
 }
